@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CYBERPUNK TASK MASTER</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/phosphor-icons"></script>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Three.js for 3D effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Particles.js -->
+    <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    
+    <style>
+        :root {
+            --cyber-cyan: #00f3ff;
+            --cyber-pink: #ff00ff;
+            --cyber-purple: #9d00ff;
+            --cyber-dark: #0a0a0f;
+            --cyber-gray: #1a1a2e;
+            --neon-glow: 0 0 20px currentColor;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--cyber-dark);
+            color: white;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+        
+        /* Cyberpunk Title Effect */
+        .cyberpunk-title {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-pink), var(--cyber-purple));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 30px rgba(0, 243, 255, 0.5);
+            position: relative;
+            letter-spacing: 2px;
+        }
+        
+        .cyberpunk-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-pink), var(--cyber-purple));
+            border-radius: 3px;
+            box-shadow: var(--neon-glow);
+        }
+        
+        /* Glass Morphism */
+        .glass-panel {
+            background: rgba(20, 25, 45, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 243, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        
+        /* Neon Borders */
+        .neon-border-cyan {
+            border: 2px solid var(--cyber-cyan);
+            box-shadow: 
+                0 0 15px var(--cyber-cyan),
+                inset 0 0 15px var(--cyber-cyan);
+        }
+        
+        .neon-border-pink {
+            border: 2px solid var(--cyber-pink);
+            box-shadow: 
+                0 0 15px var(--cyber-pink),
+                inset 0 0 15px var(--cyber-pink);
+        }
+        
+        /* Task Cards Hover Effect */
+        .task-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .task-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.1), transparent);
+            transition: 0.5s;
+        }
+        
+        .task-card:hover::before {
+            left: 100%;
+        }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 243, 255, 0.05);
+            border-radius: 10px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(var(--cyber-cyan), var(--cyber-pink));
+            border-radius: 10px;
+        }
+        
+        /* Animated Background Elements */
+        .grid-pattern {
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+        }
+        
+        /* Loading Animation */
+        .pulse-glow {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Scan Line Effect */
+        .scan-line {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--cyber-cyan), transparent);
+            animation: scan 3s linear infinite;
+            z-index: 1000;
+            pointer-events: none;
+        }
+        
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100vh; }
+        }
+        
+        /* Particle Container */
+        #particles-js {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            pointer-events: none;
+        }
+        
+        /* Ad Container Styles */
+        .ad-container {
+            background: rgba(10, 10, 15, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ad-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-pink));
+        }
+        
+        .ad-label {
+            font-size: 11px;
+            color: var(--cyber-cyan);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        /* Button Styles */
+        .cyber-button {
+            background: linear-gradient(135deg, var(--cyber-cyan), var(--cyber-purple));
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-family: 'Rajdhani', sans-serif;
+        }
+        
+        .cyber-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .cyber-button:hover::before {
+            left: 100%;
+        }
+        
+        .cyber-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 243, 255, 0.3);
+        }
+        
+        /* Progress Bar */
+        .cyber-progress {
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .cyber-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--cyber-cyan), var(--cyber-pink));
+            border-radius: 3px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Notification Badge */
+        .notification-badge {
+            background: var(--cyber-pink);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 10px;
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            animation: pulse 1.5s infinite;
+        }
+    </style>
+</head>
+<body class="relative">
+    <!-- Animated Background -->
+    <div id="particles-js"></div>
+    <div class="grid-pattern absolute inset-0 z-0"></div>
+    <div class="scan-line"></div>
+    
+    <!-- Main Container -->
+    <div class="relative z-10 container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Header -->
+        <header class="mb-8">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-6 mb-6">
+                <div class="text-center md:text-left">
+                    <h1 class="cyberpunk-title text-5xl md:text-6xl font-black mb-2">TASK MASTER</h1>
+                    <p class="text-cyber-cyan text-lg flex items-center justify-center md:justify-start gap-2">
+                        <i class="ph ph-cpu"></i>
+                        <span>NEURAL INTERFACE TASK MANAGEMENT SYSTEM</span>
+                    </p>
+                </div>
+                
+                <!-- Stats Display -->
+                <div class="glass-panel px-6 py-4 min-w-[280px]">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="text-cyber-pink">
+                            <i class="ph ph-clock-countdown text-xl"></i>
+                            <span class="ml-2" id="current-time">--:--:--</span>
+                        </div>
+                        <div class="text-cyber-cyan">
+                            <i class="ph ph-trend-up text-xl"></i>
+                            <span class="ml-2" id="productivity-score">100%</span>
+                        </div>
+                    </div>
+                    <div class="cyber-progress">
+                        <div id="completion-progress" class="cyber-progress-bar" style="width: 0%"></div>
+                    </div>
+                    <div class="flex justify-between text-xs mt-2">
+                        <span id="task-stats">0/0 Tasks</span>
+                        <span id="due-count">0 Due</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Quick Actions -->
+            <div class="flex flex-wrap gap-3 justify-center">
+                <button class="cyber-button flex items-center gap-2" onclick="showAd('interstitial')">
+                    <i class="ph ph-lightning"></i>
+                    <span>Boost Productivity</span>
+                </button>
+                <button class="cyber-button flex items-center gap-2" onclick="showAd('rewarded')">
+                    <i class="ph ph-crown"></i>
+                    <span>Earn Rewards</span>
+                </button>
+                <button class="cyber-button flex items-center gap-2" onclick="showAd('native')">
+                    <i class="ph ph-megaphone"></i>
+                    <span>Discover</span>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Main Content Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Left Column - Task Input & List -->
+            <div class="lg:col-span-2">
+                <!-- Task Input -->
+                <div class="glass-panel p-6 mb-6">
+                    <h2 class="text-2xl font-bold text-cyber-cyan mb-4 flex items-center gap-2">
+                        <i class="ph ph-plus-circle"></i>
+                        <span>NEW TASK PROTOCOL</span>
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-cyber-pink mb-2">TASK DESIGNATION</label>
+                            <input type="text" id="task-input" 
+                                   class="w-full bg-black/50 border border-cyber-cyan/30 rounded-lg p-3 text-white focus:outline-none focus:border-cyber-cyan focus:shadow-lg focus:shadow-cyber-cyan/20"
+                                   placeholder="Enter mission objective...">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cyber-pink mb-2">PRIORITY LEVEL</label>
+                            <select id="priority-select" class="w-full bg-black/50 border border-cyber-cyan/30 rounded-lg p-3 text-white focus:outline-none focus:border-cyber-cyan">
+                                <option value="low">Low Priority</option>
+                                <option value="medium" selected>Medium Priority</option>
+                                <option value="high">High Priority</option>
+                                <option value="critical">Critical</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div>
+                            <label class="block text-sm text-cyber-pink mb-2">EXECUTION DATE</label>
+                            <input type="date" id="task-date"
+                                   class="w-full bg-black/50 border border-cyber-cyan/30 rounded-lg p-3 text-white focus:outline-none focus:border-cyber-cyan">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cyber-pink mb-2">EXECUTION TIME</label>
+                            <input type="time" id="task-time"
+                                   class="w-full bg-black/50 border border-cyber-cyan/30 rounded-lg p-3 text-white focus:outline-none focus:border-cyber-cyan">
+                        </div>
+                    </div>
+                    
+                    <button id="add-task-btn" class="cyber-button w-full py-4 text-lg">
+                        <i class="ph ph-rocket-launch"></i>
+                        <span class="ml-2">DEPLOY TASK</span>
+                    </button>
+                </div>
+                
+                <!-- Task List -->
+                <div class="glass-panel p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-cyber-cyan flex items-center gap-2">
+                            <i class="ph ph-list-checks"></i>
+                            <span>TASK QUEUE</span>
+                        </h2>
+                        <div class="flex gap-2">
+                            <button class="filter-btn active px-4 py-2 rounded-lg bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan" data-filter="all">
+                                ALL
+                            </button>
+                            <button class="filter-btn px-4 py-2 rounded-lg bg-black/50 text-gray-400 border border-gray-700" data-filter="pending">
+                                PENDING
+                            </button>
+                            <button class="filter-btn px-4 py-2 rounded-lg bg-black/50 text-gray-400 border border-gray-700" data-filter="completed">
+                                COMPLETE
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="task-list" class="space-y-4">
+                        <!-- Tasks will be loaded here -->
+                        <div class="text-center py-12 text-gray-500">
+                            <i class="ph ph-list-magnifying-glass text-6xl mb-4"></i>
+                            <p class="text-xl">NO ACTIVE MISSIONS</p>
+                            <p class="text-sm mt-2">Deploy your first task to begin</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right Column - Ads & Stats -->
+            <div class="space-y-6">
+                <!-- Native Advanced Ad -->
+                <div class="ad-container">
+                    <div class="ad-label">
+                        <i class="ph ph-trend-up"></i>
+                        <span>Sponsored Content</span>
+                    </div>
+                    <div id="native-ad" class="min-h-[300px] flex flex-col items-center justify-center text-gray-500">
+                        <i class="ph ph-advertisement text-4xl mb-3"></i>
+                        <p>Native Advanced Ad</p>
+                        <p class="text-xs mt-1">ID: ca-app-pub-1609026564473378/2319540918</p>
+                    </div>
+                </div>
+                
+                <!-- Productivity Stats -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-cyber-pink mb-4 flex items-center gap-2">
+                        <i class="ph ph-chart-line-up"></i>
+                        <span>PRODUCTIVITY METRICS</span>
+                    </h3>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="text-gray-400">Mission Completion</span>
+                                <span id="completion-percent" class="text-cyber-cyan">0%</span>
+                            </div>
+                            <div class="cyber-progress">
+                                <div id="stats-progress" class="cyber-progress-bar"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="text-center p-4 bg-black/30 rounded-lg">
+                                <div class="text-3xl font-bold text-cyber-cyan" id="total-tasks-count">0</div>
+                                <div class="text-sm text-gray-400">Total Missions</div>
+                            </div>
+                            <div class="text-center p-4 bg-black/30 rounded-lg">
+                                <div class="text-3xl font-bold text-cyber-pink" id="active-tasks-count">0</div>
+                                <div class="text-sm text-gray-400">Active</div>
+                            </div>
+                        </div>
+                        
+                        <div class="pt-4 border-t border-gray-800">
+                            <h4 class="text-cyber-cyan mb-3">Upcoming Priority</h4>
+                            <div id="upcoming-tasks" class="space-y-2">
+                                <p class="text-sm text-gray-500">No upcoming priority tasks</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Banner Ad -->
+                <div class="ad-container">
+                    <div class="ad-label">
+                        <i class="ph ph-megaphone"></i>
+                        <span>Advertisement</span>
+                    </div>
+                    <div id="banner-ad" class="h-[100px] flex items-center justify-center text-gray-500">
+                        <div class="text-center">
+                            <i class="ph ph-rectangle text-2xl mb-2"></i>
+                            <p class="text-sm">Banner Ad</p>
+                            <p class="text-xs">ID: ca-app-pub-1609026564473378/1196362635</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Rewarded Ad Section -->
+                <div class="glass-panel p-6">
+                    <h3 class="text-xl font-bold text-cyber-pink mb-4 flex items-center gap-2">
+                        <i class="ph ph-crown"></i>
+                        <span>REWARD SYSTEM</span>
+                    </h3>
+                    
+                    <p class="text-sm text-gray-400 mb-4">Watch ads to earn rewards</p>
+                    
+                    <div class="space-y-3">
+                        <button onclick="showAd('rewarded_interstitial')" class="cyber-button w-full flex items-center justify-between">
+                            <span>Quick Reward</span>
+                            <i class="ph ph-play-circle"></i>
+                        </button>
+                        
+                        <button onclick="showAd('rewarded')" class="cyber-button w-full flex items-center justify-between">
+                            <span>Premium Reward</span>
+                            <i class="ph ph-gem"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="mt-6 p-4 bg-black/30 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <div class="text-cyber-cyan font-bold text-xl" id="reward-points">0</div>
+                                <div class="text-xs text-gray-400">Reward Points</div>
+                            </div>
+                            <i class="ph ph-coins text-3xl text-yellow-500"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- App Open Ad Container (Hidden, triggers on app open) -->
+        <div id="app-open-ad" class="hidden"></div>
+        
+        <!-- Fixed Bottom Banner -->
+        <div id="bottom-banner" class="fixed bottom-0 left-0 right-0 h-20 bg-black/90 border-t border-cyber-cyan/30 z-50 flex items-center justify-center">
+            <div class="text-center">
+                <p class="text-xs text-cyber-cyan mb-1">Advertisement • Supports Development</p>
+                <div class="flex items-center justify-center gap-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-cyber-cyan to-cyber-pink rounded-lg flex items-center justify-center">
+                        <i class="ph ph-megaphone text-black"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm">AdMob Banner Active</p>
+                        <p class="text-xs text-gray-500">App ID: ca-app-pub-1609026564473378~2598758421</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ad Modal -->
+    <div id="ad-modal" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center hidden">
+        <div class="glass-panel p-8 max-w-md w-full mx-4">
+            <div class="text-center mb-6">
+                <i class="ph ph-advertisement text-5xl text-cyber-cyan mb-4"></i>
+                <h3 class="text-2xl font-bold text-white mb-2" id="ad-modal-title">Advertisement</h3>
+                <p class="text-gray-400" id="ad-modal-desc">Loading advertisement...</p>
+            </div>
+            
+            <div id="ad-content" class="min-h-[200px] flex items-center justify-center mb-6">
+                <div class="p-8 border-2 border-dashed border-cyber-cyan/30 rounded-lg">
+                    <p class="text-gray-500">Ad content will appear here</p>
+                </div>
+            </div>
+            
+            <div class="flex gap-3">
+                <button onclick="closeAd()" class="flex-1 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-700">
+                    Skip
+                </button>
+                <button onclick="rewardUser()" id="reward-btn" class="flex-1 py-3 bg-gradient-to-r from-cyber-cyan to-cyber-pink text-white rounded-lg hidden">
+                    Claim Reward
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ====================
+        // ADMOB CONFIGURATION
+        // ====================
+        const AD_CONFIG = {
+            appId: 'ca-app-pub-1609026564473378~2598758421',
+            ads: {
+                interstitial: 'ca-app-pub-1609026564473378/7714164361',
+                rewarded_interstitial: 'ca-app-pub-1609026564473378/4935780177',
+                rewarded: 'ca-app-pub-1609026564473378/7690113630',
+                native_advanced: 'ca-app-pub-1609026564473378/2319540918',
+                app_open: 'ca-app-pub-1609026564473378/2131838651',
+                banner: 'ca-app-pub-1609026564473378/1196362635'
+            }
+        };
+
+        // ====================
+        // APP STATE
+        // ====================
+        let tasks = JSON.parse(localStorage.getItem('cyberpunk_tasks')) || [];
+        let currentFilter = 'all';
+        let rewardPoints = parseInt(localStorage.getItem('reward_points')) || 0;
+        let currentAdType = null;
+        let notificationCheckInterval = null;
+
+        // ====================
+        // INITIALIZATION
+        // ====================
+        function init() {
+            // Set minimum date
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('task-date').min = today;
+            
+            // Set default time to next hour
+            const nextHour = new Date();
+            nextHour.setHours(nextHour.getHours() + 1, 0, 0, 0);
+            document.getElementById('task-time').value = nextHour.toTimeString().substring(0, 5);
+            
+            // Initialize UI
+            renderTasks();
+            updateStats();
+            updateTime();
+            initializeParticles();
+            
+            // Start background services
+            startNotificationChecker();
+            setInterval(updateTime, 1000);
+            setInterval(checkDueTasks, 30000);
+            
+            // Show app open ad on startup (simulated)
+            setTimeout(() => {
+                showAppOpenAd();
+            }, 1000);
+            
+            // Update reward points display
+            updateRewardPoints();
+        }
+
+        // ====================
+        // AD SYSTEM
+        // ====================
+        function showAd(type) {
+            currentAdType = type;
+            const modal = document.getElementById('ad-modal');
+            const title = document.getElementById('ad-modal-title');
+            const desc = document.getElementById('ad-modal-desc');
+            const rewardBtn = document.getElementById('reward-btn');
+            
+            // Show appropriate content based on ad type
+            switch(type) {
+                case 'interstitial':
+                    title.textContent = 'Productivity Boost';
+                    desc.textContent = 'Watch this ad to unlock productivity features';
+                    rewardBtn.classList.add('hidden');
+                    break;
+                    
+                case 'rewarded_interstitial':
+                    title.textContent = 'Quick Reward';
+                    desc.textContent = 'Watch a short ad to earn 10 reward points';
+                    rewardBtn.classList.remove('hidden');
+                    break;
+                    
+                case 'rewarded':
+                    title.textContent = 'Premium Reward';
+                    desc.textContent = 'Watch a full ad to earn 25 reward points';
+                    rewardBtn.classList.remove('hidden');
+                    break;
+                    
+                case 'native':
+                    title.textContent = 'Sponsored Content';
+                    desc.textContent = 'Discover premium features and tools';
+                    rewardBtn.classList.add('hidden');
+                    break;
+            }
+            
+            // Show ad content simulation
+            const adContent = document.getElementById('ad-content');
+            adContent.innerHTML = `
+                <div class="text-center p-6">
+                    <div class="w-16 h-16 bg-gradient-to-r from-cyber-cyan to-cyber-pink rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="ph ph-advertisement text-2xl text-white"></i>
+                    </div>
+                    <h4 class="text-xl font-bold text-white mb-2">${AD_CONFIG.ads[type] ? 'Ad Loading...' : 'Demo Ad'}</h4>
+                    <p class="text-gray-400 text-sm mb-4">Ad Unit: ${AD_CONFIG.ads[type] || 'Test Mode'}</p>
+                    <div class="cyber-progress">
+                        <div class="cyber-progress-bar" style="width: 70%"></div>
+                    </div>
+                    <p class="text-xs text-gray-500 mt-3">In production, real ads from Google AdMob will show here</p>
+                </div>
+            `;
+            
+            modal.classList.remove('hidden');
+            
+            // Simulate ad completion after 3 seconds
+            setTimeout(() => {
+                if (type.includes('rewarded')) {
+                    rewardBtn.textContent = `Claim ${type === 'rewarded' ? '25' : '10'} Points`;
+                }
+            }, 3000);
+        }
+
+        function closeAd() {
+            document.getElementById('ad-modal').classList.add('hidden');
+            currentAdType = null;
+        }
+
+        function rewardUser() {
+            if (currentAdType === 'rewarded') {
+                rewardPoints += 25;
+            } else if (currentAdType === 'rewarded_interstitial') {
+                rewardPoints += 10;
+            }
+            
+            localStorage.setItem('reward_points', rewardPoints);
+            updateRewardPoints();
+            
+            // Show success message
+            alert(`🎉 Reward claimed! You earned ${currentAdType === 'rewarded' ? '25' : '10'} points!`);
+            
+            closeAd();
+        }
+
+        function showAppOpenAd() {
+            // This would trigger app open ad in a real app
+            console.log('App Open Ad would show: ', AD_CONFIG.ads.app_open);
+        }
+
+        function updateRewardPoints() {
+            document.getElementById('reward-points').textContent = rewardPoints;
+        }
+
+        // ====================
+        // TASK MANAGEMENT
+        // ====================
+        function addTask() {
+            const input = document.getElementById('task-input');
+            const date = document.getElementById('task-date');
+            const time = document.getElementById('task-time');
+            const priority = document.getElementById('priority-select').value;
+            
+            if (!input.value.trim()) {
+                alert('Please enter a task description');
+                return;
+            }
+            
+            const task = {
+                id: Date.now(),
+                text: input.value.trim(),
+                date: date.value,
+                time: time.value,
+                priority: priority,
+                completed: false,
+                createdAt: new Date().toISOString(),
+                notified: false
+            };
+            
+            tasks.unshift(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            
+            // Clear input
+            input.value = '';
+            
+            // Show success with cyberpunk effect
+            const btn = document.getElementById('add-task-btn');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="ph ph-check-circle"></i><span class="ml-2">TASK DEPLOYED!</span>';
+            btn.style.background = 'linear-gradient(135deg, #00ff00, #00cc00)';
+            
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.style.background = '';
+            }, 2000);
+            
+            // Check if we should show an interstitial ad (every 3 tasks)
+            const incompleteTasks = tasks.filter(t => !t.completed).length;
+            if (incompleteTasks % 3 === 0) {
+                setTimeout(() => showAd('interstitial'), 1000);
+            }
+        }
+
+        function toggleTask(id) {
+            tasks = tasks.map(task => {
+                if (task.id === id) {
+                    task.completed = !task.completed;
+                    
+                    // Award points for completion
+                    if (task.completed) {
+                        rewardPoints += 5;
+                        localStorage.setItem('reward_points', rewardPoints);
+                        updateRewardPoints();
+                    }
+                }
+                return task;
+            });
+            
+            saveTasks();
+            renderTasks();
+            updateStats();
+        }
+
+        function deleteTask(id) {
+            if (confirm('Delete this task?')) {
+                tasks = tasks.filter(task => task.id !== id);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        function saveTasks() {
+            localStorage.setItem('cyberpunk_tasks', JSON.stringify(tasks));
+        }
+
+        // ====================
+        // RENDERING
+        // ====================
+        function renderTasks() {
+            const container = document.getElementById('task-list');
+            const filteredTasks = getFilteredTasks();
+            
+            if (filteredTasks.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-500">
+                        <i class="ph ph-list-magnifying-glass text-6xl mb-4"></i>
+                        <p class="text-xl">NO ACTIVE MISSIONS</p>
+                        <p class="text-sm mt-2">Deploy your first task to begin</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = filteredTasks.map(task => `
+                <div class="task-card glass-panel p-5 ${task.completed ? 'opacity-60' : ''}">
+                    <div class="flex items-start justify-between">
+                        <div class="flex items-start gap-4 flex-1">
+                            <button onclick="toggleTask(${task.id})" class="mt-1 ${task.completed ? 'text-cyber-cyan' : 'text-gray-400'}">
+                                <i class="ph ${task.completed ? 'ph-check-circle-fill' : 'ph-circle'} text-2xl"></i>
+                            </button>
+                            
+                            <div class="flex-1">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <h3 class="text-lg font-semibold ${task.completed ? 'line-through text-gray-500' : 'text-white'}">
+                                        ${task.text}
+                                    </h3>
+                                    <span class="priority-badge ${getPriorityClass(task.priority)} text-xs px-2 py-1 rounded">
+                                        ${task.priority.toUpperCase()}
+                                    </span>
+                                </div>
+                                
+                                <div class="flex flex-wrap items-center gap-4 text-sm">
+                                    <div class="flex items-center text-cyber-cyan">
+                                        <i class="ph ph-calendar mr-2"></i>
+                                        <span>${formatDate(task.date)}</span>
+                                    </div>
+                                    <div class="flex items-center text-cyber-pink">
+                                        <i class="ph ph-clock mr-2"></i>
+                                        <span>${formatTime(task.time)}</span>
+                                    </div>
+                                    ${isTaskDueSoon(task) ? `
+                                        <div class="flex items-center text-red-400 pulse-glow">
+                                            <i class="ph ph-warning mr-2"></i>
+                                            <span>DUE SOON</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button onclick="deleteTask(${task.id})" class="ml-4 text-gray-500 hover:text-cyber-pink">
+                            <i class="ph ph-trash text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getFilteredTasks() {
+            switch(currentFilter) {
+                case 'pending': return tasks.filter(t => !t.completed);
+                case 'completed': return tasks.filter(t => t.completed);
+                default: return tasks;
+            }
+        }
+
+        // ====================
+        // STATS & UPDATES
+        // ====================
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+            
+            // Update progress bars
+            document.getElementById('completion-progress').style.width = `${percent}%`;
+            document.getElementById('stats-progress').style.width = `${percent}%`;
+            
+            // Update counts
+            document.getElementById('completion-percent').textContent = `${percent}%`;
+            document.getElementById('total-tasks-count').textContent = total;
+            document.getElementById('active-tasks-count').textContent = total - completed;
+            document.getElementById('task-stats').textContent = `${completed}/${total} Tasks`;
+            
+            // Update due count
+            const dueSoon = tasks.filter(t => !t.completed && isTaskDueSoon(t)).length;
+            document.getElementById('due-count').textContent = `${dueSoon} Due`;
+            
+            // Update productivity score
+            const score = Math.min(100, Math.round(percent * 1.2));
+            document.getElementById('productivity-score').textContent = `${score}%`;
+            
+            // Update upcoming tasks
+            updateUpcomingTasks();
+        }
+
+        function updateUpcomingTasks() {
+            const container = document.getElementById('upcoming-tasks');
+            const upcoming = tasks
+                .filter(t => !t.completed)
+                .sort((a, b) => new Date(`${a.date}T${a.time}`) - new Date(`${b.date}T${b.time}`))
+                .slice(0, 3);
+            
+            if (upcoming.length === 0) {
+                container.innerHTML = '<p class="text-sm text-gray-500">No upcoming priority tasks</p>';
+                return;
+            }
+            
+            container.innerHTML = upcoming.map(task => `
+                <div class="flex items-center justify-between p-3 bg-black/30 rounded-lg">
+                    <div class="truncate mr-2">${task.text}</div>
+                    <div class="text-xs text-cyber-cyan whitespace-nowrap">
+                        ${formatTime(task.time)}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('current-time').textContent = 
+                now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
+        }
+
+        // ====================
+        // NOTIFICATION SYSTEM
+        // ====================
+        function startNotificationChecker() {
+            notificationCheckInterval = setInterval(checkDueTasks, 10000);
+        }
+
+        function checkDueTasks() {
+            const now = new Date();
+            
+            tasks.forEach(task => {
+                if (task.completed || task.notified) return;
+                
+                const dueDate = new Date(`${task.date}T${task.time}`);
+                const timeDiff = dueDate - now;
+                
+                if (timeDiff > 0 && timeDiff <= 600000) { // 10 minutes before due
+                    showNotification(task);
+                    task.notified = true;
+                    saveTasks();
+                }
+            });
+        }
+
+        function showNotification(task) {
+            if (!("Notification" in window)) return;
+            
+            if (Notification.permission === "granted") {
+                new Notification(`⏰ ${task.text}`, {
+                    body: `Task due at ${formatTime(task.time)}`,
+                    icon: "data:image/svg+xml," + encodeURIComponent(`
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+                            <rect width="100" height="100" fill="#0a0a0f"/>
+                            <circle cx="50" cy="50" r="40" fill="none" stroke="#00f3ff" stroke-width="5"/>
+                            <text x="50" y="65" font-size="40" text-anchor="middle" fill="#00f3ff">!</text>
+                        </svg>
+                    `)
+                });
+            }
+        }
+
+        // ====================
+        // UTILITY FUNCTIONS
+        // ====================
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function formatTime(timeString) {
+            const [hours, minutes] = timeString.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const displayHour = hour % 12 || 12;
+            return `${displayHour}:${minutes} ${ampm}`;
+        }
+
+        function getPriorityClass(priority) {
+            const classes = {
+                low: 'bg-gray-700 text-gray-300',
+                medium: 'bg-cyan-900 text-cyber-cyan',
+                high: 'bg-pink-900 text-cyber-pink',
+                critical: 'bg-red-900 text-red-400'
+            };
+            return classes[priority] || classes.medium;
+        }
+
+        function isTaskDueSoon(task) {
+            if (task.completed) return false;
+            
+            const dueDate = new Date(`${task.date}T${task.time}`);
+            const now = new Date();
+            const timeDiff = dueDate - now;
+            
+            return timeDiff > 0 && timeDiff <= 3600000; // Due within 1 hour
+        }
+
+        // ====================
+        // VISUAL EFFECTS
+        // ====================
+        function initializeParticles() {
+            particlesJS('particles-js', {
+                particles: {
+                    number: { value: 80, density: { enable: true, value_area: 800 } },
+                    color: { value: ["#00f3ff", "#ff00ff", "#9d00ff"] },
+                    shape: { type: "circle" },
+                    opacity: { value: 0.3, random: true },
+                    size: { value: 3, random: true },
+                    line_linked: {
+                        enable: true,
+                        distance: 150,
+                        color: "#00f3ff",
+                        opacity: 0.1,
+                        width: 1
+                    },
+                    move: {
+                        enable: true,
+                        speed: 1,
+                        direction: "none",
+                        random: true,
+                        straight: false,
+                        out_mode: "out",
+                        bounce: false
+                    }
+                },
+                interactivity: {
+                    detect_on: "canvas",
+                    events: {
+                        onhover: { enable: true, mode: "repulse" },
+                        onclick: { enable: true, mode: "push" }
+                    }
+                }
+            });
+        }
+
+        // ====================
+        // EVENT LISTENERS
+        // ====================
+        document.getElementById('add-task-btn').addEventListener('click', addTask);
+        document.getElementById('task-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') addTask();
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active', 'bg-cyber-cyan/20', 'text-cyber-cyan', 'border-cyber-cyan');
+                    b.classList.add('bg-black/50', 'text-gray-400', 'border-gray-700');
+                });
+                
+                this.classList.add('active', 'bg-cyber-cyan/20', 'text-cyber-cyan', 'border-cyber-cyan');
+                this.classList.remove('bg-black/50', 'text-gray-400', 'border-gray-700');
+                
+                currentFilter = this.dataset.filter;
+                renderTasks();
+            });
+        });
+
+        // Request notification permission
+        if (!localStorage.getItem('notifications_requested')) {
+            setTimeout(() => {
+                if (Notification.permission === "default") {
+                    Notification.requestPermission();
+                }
+                localStorage.setItem('notifications_requested', 'true');
+            }, 3000);
+        }
+
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
